@@ -25,7 +25,7 @@ function BookCreate({ addBook }: AddBookProps) {
 
   return (
     <div className="book-create">
-      <h3>Add a Book to Your Read List</h3>
+      <h3>Add a Book to Your Reading List</h3>
       <br />
       <form onSubmit={handleSubmit}>
         <label>Title</label>
