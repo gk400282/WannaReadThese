@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import BookCreate from './components/BookCreate';
 import BookList from './components/BookList';
 import './Extra.css';
@@ -8,21 +9,42 @@ import { Book } from './typeSchemas/bookInterface';
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
 
-  const addBook = (title: string, author: string): void => {
-    setBooks([...books, { id: crypto.randomUUID(), title, author }]);
+  const getBooks = async (): Promise<void> => {
+    const response = await axios.get('http://localhost:3001/books');
+
+    setBooks(response.data);
   };
 
-  const updateBook = (id: string, newTitle: string, newAuthor: string): void => {
+  useEffect(() => {
+    getBooks();
+  }, [])
+
+  const addBook = async (title: string, author: string): Promise<void> => {
+    const response = await axios.post("http://localhost:3001/books", {
+      id: crypto.randomUUID(),
+      title,
+      author
+    })
+    setBooks([...books, response.data]);
+  };
+
+  const updateBook = async (id: string, newTitle: string, newAuthor: string): Promise<void> => {
+    const response = await axios.put(`http://localhost:3001/books/${id}`, {
+      title: newTitle,
+      author: newAuthor
+    })
     setBooks([...books.map((eachBook) => {
-      if (eachBook.id == id)
+      if (eachBook.id == response.data.id)
       {
-        return {...eachBook, title: newTitle, author: newAuthor};
+        return {...eachBook, ...response.data};
       }
       return eachBook;
     })]);
   }
 
-  const deleteBook = (id: string): void => {
+  const deleteBook = async (id: string): Promise<void> => {
+    await axios.delete(`http://localhost:3001/books/${id}`);
+
     setBooks([...books.filter((eachBook) => eachBook.id !== id)]);
   };
 
